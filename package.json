@@ -1,0 +1,9 @@
+{
+  "name": "native-voice-command-detector",
+  "version": "0.5.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": "git@github.com:Vagr9K/native-voice-command-detector.git",
+  "author": "'Ruben Harutyunyan' <'harutyunyan.ruben@gmail.com'>",
+  "license": "AGPLV3"
+}
