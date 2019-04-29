@@ -15,6 +15,18 @@ The module relies on [Porcupine](https://github.com/Picovoice/Porcupine) for hot
 
 This project was primarily created for the [Discord VoiceBot](https://github.com/Vagr9K/VoiceBot), since a NodeJS only solution wouldn't be able to provide the desired performance.
 
+## Demo (based on [Discord VoiceBot](https://github.com/Vagr9K/VoiceBot))
+
+[![Demo](https://img.youtube.com/vi/vRwp--RoJdo/0.jpg)](https://www.youtube.com/watch?v=vRwp--RoJdo)
+
+Why `Terminator`? It seems to be the most consistently detected hotword.
+
+Why `Mozart`? It's not copyrighted.
+
+## How does this work
+
+Consult [my blog post](https://vagr9k.me/using-n-api-for-high-performance-voice-command-detection-in-discord) about the design decisions if you're interested.
+
 ## Building
 
 - Install the external dependencies by relying on the system package manager:
