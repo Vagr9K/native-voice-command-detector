@@ -2,6 +2,7 @@
 
 #include <opus/opus.h>
 #include <spdlog/spdlog.h>
+#include <mutex>
 #include <string>
 #include <vector>
 #include "../types.h"
@@ -18,6 +19,8 @@ class OpusFrameDecoder {
   std::vector<pcm_frame> Decode(const std::vector<opus_frame>& opus_frames);
 
  private:
+  // Lock
+  std::mutex mt;
   // Decoder handle
   OpusDecoder* decoder = nullptr;
   // Decoder settings

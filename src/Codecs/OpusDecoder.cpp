@@ -17,6 +17,8 @@ OpusFrameDecoder::~OpusFrameDecoder() { opus_decoder_destroy(decoder); }
 // Decode the specified OPUS frames
 std::vector<pcm_frame> OpusFrameDecoder::Decode(
     const std::vector<opus_frame>& opus_frames) {
+  // Prevent concurrent decoding
+  std::lock_guard<std::mutex> lck(mt);
   // Final return buffer
   std::vector<opus_int16> pcm_buffer;
   // Intermediate buffer for decoded output
