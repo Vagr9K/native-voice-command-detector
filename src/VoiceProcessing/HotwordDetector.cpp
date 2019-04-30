@@ -24,6 +24,8 @@ HotwordDetector::HotwordDetector(
 HotwordDetector::~HotwordDetector() { pv_porcupine_delete(porcupine_object); }
 
 void HotwordDetector::Check(std::vector<pcm_frame> pcm_data) {
+  // Prevent concurrent checks
+  std::lock_guard<std::mutex> lck(mt);
   // Add to the main buffer in case there are any leftover frames
   buffer.insert(buffer.end(), pcm_data.begin(), pcm_data.end());
 

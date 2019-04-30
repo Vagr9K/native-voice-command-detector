@@ -35,4 +35,7 @@ class HotwordDetector {
 
   // Buffer to store the PCM data and leftovers in
   std::vector<pcm_frame> buffer;
+
+  // Prevent access by multiple threads
+  std::mutex mt;
 };
