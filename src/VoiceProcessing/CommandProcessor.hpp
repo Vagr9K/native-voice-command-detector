@@ -4,6 +4,7 @@
 #include <base64.h>
 #include <curl/curl.h>
 #include <spdlog/spdlog.h>
+#include <atomic>
 #include <functional>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -24,6 +25,9 @@ class CommandProcessor {
   // Start the speech to text conversion
   void StartProcessing();
 
+  // Fetches the completion status
+  bool GetStatus();
+
  private:
   // PCM buffer for the audio segment storage
   std::vector<pcm_frame> command_pcm_frames;
@@ -36,4 +40,9 @@ class CommandProcessor {
 
   // Thread pool
   ThreadPool* pool;
+
+  // Lock
+  std::mutex mt;
+  // Completion status
+  std::atomic<bool> is_done;
 };

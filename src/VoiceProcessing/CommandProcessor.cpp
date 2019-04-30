@@ -3,7 +3,7 @@
 CommandProcessor::CommandProcessor(
     AppConfig config, ThreadPool* pool,
     std::function<void(std::string&)> data_callback)
-    : pool(pool) {
+    : pool(pool), is_done(false) {
   this->config = std::move(config);
   this->data_callback = std::move(data_callback);
 };
@@ -19,16 +19,11 @@ void CommandProcessor::AddAudio(std::vector<pcm_frame>& frames) {
 }
 
 void CommandProcessor::StartProcessing() {
-  auto pcm_frames = command_pcm_frames;
-  auto g_cloud_api_key = config.g_speech_to_text_api_key;
-  std::function<void(std::string&)> text_data_callback = data_callback;
-
   // Enqueue a task for the threadpool
-  pool->enqueue([pcm_frames, text_data_callback, g_cloud_api_key]() {
+  pool->enqueue([this]() {
     std::function<void(std::vector<unsigned char>&)> cb =
-        [&text_data_callback,
-         &g_cloud_api_key](std::vector<unsigned char>& encoded_ogg_opus) {
-          GSpeechToText parser(g_cloud_api_key);
+        [this](std::vector<unsigned char>& encoded_ogg_opus) {
+          GSpeechToText parser(this->config.g_speech_to_text_api_key);
 
           SPDLOG_INFO(
               "CommandProcessor::StartProcessing::encoded_ogg_opus_cb : "
@@ -55,12 +50,17 @@ void CommandProcessor::StartProcessing() {
               data);
 
           // Callback VoiceProcessor
-          text_data_callback(data);
+          this->data_callback(data);
+
+          // Set as done for later cleanup
+          this->is_done = true;
         };
 
     // Encode the PCM frames in OggOpus format
     // Callback for further processing
     OpusOggEncoder encoder(cb);
-    encoder.Encode(pcm_frames);
+    encoder.Encode(this->command_pcm_frames);
   });
 }
+
+bool CommandProcessor::GetStatus() { return is_done; };
