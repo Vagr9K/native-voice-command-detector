@@ -89,7 +89,7 @@ void VoiceProcessor::OnSync() {
       // Set as not processing
       currently_processing_command = false;
       // Set command segment as ready and process
-      command_segments.back().StartProcessing();
+      command_segments.back()->StartProcessing();
 
     } else if (current_time - last_pcm_data_timestamp >
                config.max_command_silence_length_ms) {
@@ -101,12 +101,22 @@ void VoiceProcessor::OnSync() {
       // Set as not processing
       currently_processing_command = false;
       // Set command segment as ready and process
-      command_segments.back().StartProcessing();
+      command_segments.back()->StartProcessing();
     }
   } else {
     // If we're not procesing a command, reset the timestamp as this should be
     // treated as a "pending" input
     last_hotword_timestamp = current_time;
+  }
+
+  // Cleanup old redundant CommandProcessor entries
+  for (auto i = command_segments.begin(); i != command_segments.end();) {
+    if ((*i)->GetStatus()) {
+      delete (*i);
+      i = command_segments.erase(i);
+    } else {
+      i++;
+    }
   }
 }
 
@@ -154,7 +164,7 @@ void VoiceProcessor::EnqueuePCMFrames(std::vector<pcm_frame> &new_pcm_frames) {
   // If a command is being currently processed, also append to that command
   // processor
   if (currently_processing_command) {
-    command_segments.back().AddAudio(new_pcm_frames);
+    command_segments.back()->AddAudio(new_pcm_frames);
   }
   // Add to the hotword detection queue
   pcm_frames.insert(pcm_frames.end(), new_pcm_frames.begin(),
@@ -169,7 +179,7 @@ void VoiceProcessor::HotwordCallback(
 
   // If currently processing another command, register it as ready
   if (currently_processing_command) {
-    command_segments.back().StartProcessing();
+    command_segments.back()->StartProcessing();
 
     SPDLOG_DEBUG(
         "VoiceProcessor::HotwordCallback : Setting last command processor "
@@ -195,10 +205,11 @@ void VoiceProcessor::HotwordCallback(
                          pcm_frames.end());
 
   // Add a new command segment
-  CommandProcessor new_command_processor(
+  auto new_command_processor = new CommandProcessor(
       config, pool,
       std::bind(&VoiceProcessor::CommandCallback, this, std::placeholders::_1));
-  new_command_processor.AddAudio(full_pcm_buffer);
+
+  new_command_processor->AddAudio(full_pcm_buffer);
   command_segments.push_back(new_command_processor);
 
   SPDLOG_DEBUG(

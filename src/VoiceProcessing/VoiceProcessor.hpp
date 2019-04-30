@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <chrono>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -46,7 +47,7 @@ class VoiceProcessor {
   // Data
   std::vector<opus_frame> opus_frames;
   std::vector<pcm_frame> pcm_frames;
-  std::vector<CommandProcessor> command_segments;
+  std::vector<CommandProcessor *> command_segments;
 
   // State data
   int last_hotword_timestamp;
