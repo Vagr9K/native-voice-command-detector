@@ -17,7 +17,7 @@
 // Stores the command releted audio and transforms it into a text command
 class CommandProcessor {
  public:
-  CommandProcessor(AppConfig config, ThreadPool* pool,
+  CommandProcessor(AppConfig config, const std::shared_ptr<ThreadPool>& pool,
                    std::function<void(std::string&)> data_callback);
   // Add audio to the storage buffer
   void AddAudio(std::vector<pcm_frame>& frames);
@@ -39,7 +39,7 @@ class CommandProcessor {
   std::function<void(std::string&)> data_callback;
 
   // Thread pool
-  ThreadPool* pool;
+  std::shared_ptr<ThreadPool> pool;
 
   // Lock
   std::mutex mt;

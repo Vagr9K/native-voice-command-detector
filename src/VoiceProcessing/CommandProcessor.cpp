@@ -1,7 +1,7 @@
 #include "CommandProcessor.hpp"
 
 CommandProcessor::CommandProcessor(
-    AppConfig config, ThreadPool* pool,
+    AppConfig config, const std::shared_ptr<ThreadPool>& pool,
     std::function<void(std::string&)> data_callback)
     : pool(pool), is_done(false) {
   this->config = std::move(config);

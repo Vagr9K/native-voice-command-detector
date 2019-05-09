@@ -21,7 +21,8 @@
 // to text
 class VoiceProcessor {
  public:
-  VoiceProcessor(std::string id, AppConfig config, ThreadPool *pool,
+  VoiceProcessor(std::string id, AppConfig config,
+                 const std::shared_ptr<ThreadPool> &pool,
                  command_callback cmd_callback);
 
   // Adds OPUS frames to the detection queue
@@ -32,7 +33,7 @@ class VoiceProcessor {
   std::string id;
 
   // Thread pool
-  ThreadPool *pool;
+  std::shared_ptr<ThreadPool> pool;
 
   // Command callback
   command_callback cmd_callback;
@@ -47,7 +48,7 @@ class VoiceProcessor {
   // Data
   std::vector<opus_frame> opus_frames;
   std::vector<pcm_frame> pcm_frames;
-  std::vector<CommandProcessor *> command_segments;
+  std::vector<std::shared_ptr<CommandProcessor>> command_segments;
 
   // State data
   int last_hotword_timestamp;

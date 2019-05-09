@@ -56,6 +56,7 @@ std::string HTTPClient::PostJson(const std::string &uri,
     }
 
     // Cleanup
+    delete headers;
     curl_easy_cleanup(curl);
   }
 

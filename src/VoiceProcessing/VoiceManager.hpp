@@ -24,9 +24,9 @@ class VoiceManager {
 
  private:
   // Hashmap to store all the VoiceProcessor instance pointers
-  std::unordered_map<std::string, VoiceProcessor*> vp_map;
+  std::unordered_map<std::string, std::shared_ptr<VoiceProcessor>> vp_map;
   // Threadpool handle
-  ThreadPool* pool;
+  std::shared_ptr<ThreadPool> pool;
   // N-API callback
   command_callback cb;
   // Applciation wide configuration

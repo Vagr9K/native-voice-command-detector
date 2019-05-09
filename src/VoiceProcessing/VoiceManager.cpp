@@ -14,7 +14,7 @@ VoiceManager::VoiceManager(AppConfig config, command_callback cb) {
   }
 
   // Create a thread pool
-  pool = new ThreadPool(num_threads);
+  pool = std::make_shared<ThreadPool>(num_threads);
   SPDLOG_INFO("Detector started with {} worker threads.", num_threads);
 
   // Initialize CURL here, since otherwise we'll have thread safety issues
@@ -25,14 +25,6 @@ VoiceManager::VoiceManager(AppConfig config, command_callback cb) {
 }
 
 VoiceManager::~VoiceManager() {
-  // Clean up the thread pool
-  delete pool;
-
-  // Clean up the VoiceProcessors
-  for (const auto& vp : vp_map) {
-    delete vp.second;
-  }
-
   // Cleanup CURL
   curl_global_cleanup();
 
@@ -45,7 +37,7 @@ void VoiceManager::AddOpusFrame(const std::string& id,
   // Try to find an existing VoiceProcessor via an ID from a Hash Map
   if (vp_map.find(id) == vp_map.end()) {
     // If not found, create a new one
-    auto vp = new VoiceProcessor(id, config, pool, cb);
+    auto vp = std::make_shared<VoiceProcessor>(id, config, pool, cb);
     vp->AddOpusFrame(frame);
 
     // Assign to the HashMap for the future reuse

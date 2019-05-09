@@ -71,7 +71,7 @@ class Detector : public Napi::ObjectWrap<Detector> {
     config.max_command_silence_length_ms = info[6].ToNumber().Int32Value();
 
     // Initialize VoiceManager
-    voice_manager = new VoiceManager(
+    voice_manager = std::make_unique<VoiceManager>(
         config, std::bind(&Detector::SendCommand, this, std::placeholders::_1,
                           std::placeholders::_2));
 
@@ -83,11 +83,9 @@ class Detector : public Napi::ObjectWrap<Detector> {
   Detector(const Detector&) = delete;
   Detector(const Detector&&) = delete;
 
-  ~Detector() { delete voice_manager; }
-
  private:
   std::shared_ptr<ThreadSafeCallback> node_callback;
-  VoiceManager* voice_manager;
+  std::unique_ptr<VoiceManager> voice_manager;
   AppConfig config;
 
   // Adds an Opus frame to the buffer

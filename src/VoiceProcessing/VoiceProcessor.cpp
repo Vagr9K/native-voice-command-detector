@@ -14,7 +14,8 @@ constexpr int audio_rate = 16000;
 constexpr int audio_channels = 1;
 
 VoiceProcessor::VoiceProcessor(std::string id, AppConfig config,
-                               ThreadPool *pool, command_callback cmd_callback)
+                               const std::shared_ptr<ThreadPool> &pool,
+                               command_callback cmd_callback)
     : pool(pool),
       detector(config.pv_keyword_path, config.pv_model_path,
                config.pv_sensitivity,
@@ -112,7 +113,6 @@ void VoiceProcessor::OnSync() {
   // Cleanup old redundant CommandProcessor entries
   for (auto i = command_segments.begin(); i != command_segments.end();) {
     if ((*i)->GetStatus()) {
-      delete (*i);
       i = command_segments.erase(i);
     } else {
       i++;
@@ -205,12 +205,12 @@ void VoiceProcessor::HotwordCallback(
                          pcm_frames.end());
 
   // Add a new command segment
-  auto new_command_processor = new CommandProcessor(
+  auto new_command_processor = std::make_shared<CommandProcessor>(
       config, pool,
       std::bind(&VoiceProcessor::CommandCallback, this, std::placeholders::_1));
 
   new_command_processor->AddAudio(full_pcm_buffer);
-  command_segments.push_back(new_command_processor);
+  command_segments.push_back(std::move(new_command_processor));
 
   SPDLOG_DEBUG(
       "VoiceProcessor::HotwordCallback : New command processor added.");
