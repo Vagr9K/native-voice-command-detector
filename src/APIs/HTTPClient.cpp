@@ -45,8 +45,10 @@ std::string HTTPClient::PostJson(const std::string &uri,
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &received_data);
 
-    // Perform the request
+// Perform the request, unless in benchmark mode
+#ifndef DETECTOR_BENCHMARK
     res = curl_easy_perform(curl);
+#endif
 
     if (res != CURLE_OK) {
       std::string error(curl_easy_strerror(res));
@@ -63,5 +65,12 @@ std::string HTTPClient::PostJson(const std::string &uri,
 
   SPDLOG_DEBUG("HTTPClient::PostJson : Received data: {}.", received_data);
 
+// Return a predetermined data in case of benchmark mode
+#ifdef DETECTOR_BENCHMARK
+  received_data =
+      "{\"results\":[{\"alternatives\": [{\"transcript\": \"TEST TEST TEST "
+      "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST "
+      "TEST\"}]}]}";
+#endif
   return received_data;
 }
